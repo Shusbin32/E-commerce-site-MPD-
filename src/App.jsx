@@ -60,9 +60,16 @@ export default function App() {
     }
   };
 
+  useEffect(() => {
+    const meta = document.createElement('meta');
+    meta.name = "viewport";
+    meta.content = "width=device-width, initial-scale=1";
+    document.head.appendChild(meta);
+  }, []);
+
   console.log(loggedIn,'loggedIn');
   return (
-    <div>
+    <>
       {/* ✅ Navbar */}
       <nav className="bg-white shadow-md px-6 py-4 flex justify-between items-center">
         <Link to="/" className="flex items-center space-x-2">
@@ -147,7 +154,7 @@ export default function App() {
       </Routes>
 
       <Footer />
-      <ToastContainer />
-    </div>
+      <ToastContainer position="bottom-right" />
+    </>
   );
 }

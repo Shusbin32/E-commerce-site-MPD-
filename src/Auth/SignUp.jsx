@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
+import { toast } from 'react-toastify'; // Add this import
 
 function SignUp() {
   const [name, setName] = useState('');
@@ -15,20 +16,24 @@ function SignUp() {
 
     if (!name || !email || !password || !confirmPassword) {
       setError('Please fill all fields');
+      toast.error('Please fill all fields', { position: 'top-center' });
       return;
     }
 
     if (password !== confirmPassword) {
       setError('Passwords do not match');
+      toast.error('Passwords do not match', { position: 'top-center' });
       return;
     }
 
     try {
       await api.post('/auth/signup', { name, email, password });
-      alert('Sign up successful! You can now log in.');
+      toast.success('Sign up successful! You can now log in.', { position: 'top-center' });
       navigate('/login');
     } catch (err) {
-      setError(err.response?.data?.error || 'Signup failed');
+      const msg = err.response?.data?.error || 'Signup failed';
+      setError(msg);
+      toast.error(msg, { position: 'top-center' });
     }
   };
 
