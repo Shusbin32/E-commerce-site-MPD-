@@ -245,7 +245,7 @@ export default function AdminDashboard() {
                   <td className="p-2 border">{product.unit}</td>
                   <td className="p-2 border">
                     <img
-                      src={`https://e-commerce-site-backend-hx6v.onrender.com/api/${product.imagePath.replace(/\\/g, '/')}`}
+                      src={`https://e-commerce-site-backend-hx6v.onrender.com/${product.imagePath.replace(/\\/g, '/')}`}
                       alt={product.name}
                       className="h-12 w-12 object-cover rounded shadow"
                     />
