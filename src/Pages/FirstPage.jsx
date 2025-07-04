@@ -119,9 +119,10 @@ export default function FirstPage() {
                 }}
               >
                 <img
-                  src={product.imagePath ? `https://e-commerce-site-backend-hx6v.onrender.com/${product.imagePath.replace(/\\/g, '/')}` : '/resources/placeholder.png'}
+                  src={product.imagePath ? `https://e-commerce-site-backend-hx6v.onrender.com/${product.imagePath.replace(/\\/g, '/')}` : '/resources/Logostore.png'}
                   alt={product.name}
                   className="h-20 w-20 sm:h-28 sm:w-28 object-cover rounded-full mb-3 sm:mb-4 border-4 border-green-100 shadow"
+                  onError={e => { e.target.onerror = null; e.target.src = '/resources/Logostore.png'; }}
                 />
                 <div className="text-lg sm:text-xl font-bold text-green-900 mb-1 text-center">{product.name}</div>
                 <div className="text-gray-700 mb-1 text-center text-sm sm:text-base">{product.description?.slice(0, 40)}{product.description?.length > 40 ? '...' : ''}</div>

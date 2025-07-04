@@ -61,12 +61,14 @@ export default function OurProducts({ addToCart, loggedIn }) {
             >
               <div className="flex justify-center mb-4 w-full">
                 <img
-      
-              src={product.imagePath}
-               alt={product.name}
-                 className="h-28 w-28 object-cover rounded-full border-4 border-green-100 shadow"
-                  onError={e => { e.target.onerror = null; e.target.src = '/resources/placeholder.png'; }}
-                />
+  src={`https://e-commerce-site-backend-hx6v.onrender.com/${product.imagePath.replace(/\\/g, '/')}`}
+  alt={product.name}
+  className="h-28 w-28 object-cover rounded-full border-4 border-green-100 shadow"
+  onError={(e) => {
+    e.target.onerror = null;
+    e.target.src = '/resources/Logostore.png';
+  }}
+/>
               </div>
               <h3 className="text-2xl font-bold text-green-900 text-center mb-1">{product.name}</h3>
               <p className="text-center text-base text-gray-600 mb-2">

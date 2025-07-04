@@ -245,9 +245,10 @@ export default function AdminDashboard() {
                   <td className="p-2 border">{product.unit}</td>
                   <td className="p-2 border">
                   <img
-                        src={product.imagePath}
+                        src={product.imagePath ? `https://e-commerce-site-backend-hx6v.onrender.com/${product.imagePath.replace(/\\/g, '/')}` : '/resources/Logostore.png'}
                        alt={product.name}
                        className="h-12 w-12 object-cover rounded shadow"
+                       onError={e => { e.target.onerror = null; e.target.src = '/resources/Logostore.png'; }}
                     />
 
                   </td>
