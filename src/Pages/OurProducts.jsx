@@ -4,19 +4,23 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaCartPlus } from 'react-icons/fa';
+import {useQuery} from '@tanstack/react-query';
 
 export default function OurProducts({ addToCart, loggedIn }) {
-  const [products, setProducts] = useState([]);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    api.get('/products')
-      .then((res) => setProducts(res.data))
-      .catch((err) => {
-        console.error('Failed to load products:', err);
-        toast.error('Failed to load products from server');
-      });
-  }, []);
+  const fetchProducts =async ()=>{
+    const res =await fetch('/products');
+    return res.data;
+  };
+
+  const {data: products=[],isLoading,error}= useQuery({
+    queryKey: ['products'],
+    queryFn: fetchProducts,
+    onError:()=>{
+      toast.error('Failed to fetch products');
+    }
+  });
 
   const handleAddToCart = (product) => {
     if (!loggedIn) {
@@ -61,23 +65,27 @@ export default function OurProducts({ addToCart, loggedIn }) {
             >
               <div className="flex justify-center mb-4 w-full">
                 <img
-  src={`https://e-commerce-site-backend-hx6v.onrender.com/${product.imagePath.replace(/\\/g, '/')}`}
-  alt={product.name}
-  className="h-28 w-28 object-cover rounded-full border-4 border-green-100 shadow"
-  onError={(e) => {
-    e.target.onerror = null;
-    e.target.src = '/resources/Logostore.png';
-  }}
-/>
+                  src={`http://localhost:5000/${product.imagePath.replace(/\\/g, '/')}`}
+                  alt={product.name}
+                  className="h-28 w-28 object-cover rounded-full border-4 border-green-100 shadow"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = '/resources/Logostore.png';
+                  }}
+                />
               </div>
+
               <h3 className="text-2xl font-bold text-green-900 text-center mb-1">{product.name}</h3>
+
               <p className="text-center text-base text-gray-600 mb-2">
                 {product.description?.slice(0, 50)}
                 {product.description?.length > 50 ? '...' : ''}
               </p>
+
               <div className="text-blue-700 font-semibold mb-4 text-center text-lg">
                 Rs. {product.price} <span className="text-xs text-gray-500">/ {product.unit}</span>
               </div>
+
               <button
                 onClick={() => handleAddToCart(product)}
                 className="bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white px-6 py-2 rounded-full text-base font-semibold shadow flex items-center gap-2 transition"
