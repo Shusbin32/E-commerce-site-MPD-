@@ -5,14 +5,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaCartPlus } from 'react-icons/fa';
 import { useQuery } from '@tanstack/react-query';
 
+// ✅ Use environment variable for production safety
+const BASE_API_URL = import.meta.env.VITE_BACKEND_BASE_URL;
+const IMAGE_BASE_URL = BASE_API_URL.replace('/api', ''); // in case images are served from root
+
 export default function OurProducts({ addToCart, loggedIn }) {
   const navigate = useNavigate();
 
-  // ✅ React Query fetch function using fetch()
   const fetchProducts = async () => {
-    const res = await fetch('http://localhost:10000/api/products'); // ✅ full URL to avoid relative path issues
+    const res = await fetch(`${BASE_API_URL}/products`);
     if (!res.ok) throw new Error('Failed to fetch products');
-    return await res.json(); // Get JSON response
+    return await res.json();
   };
 
   const {
@@ -84,7 +87,7 @@ export default function OurProducts({ addToCart, loggedIn }) {
               >
                 <div className="flex justify-center mb-4 w-full">
                   <img
-                    src={`http://localhost:10000/${product.imagePath.replace(/\\/g, '/')}`}
+                    src={`${IMAGE_BASE_URL}/${product.imagePath.replace(/\\/g, '/')}`}
                     alt={product.name}
                     className="h-28 w-28 object-cover rounded-full border-4 border-green-100 shadow"
                     onError={(e) => {
