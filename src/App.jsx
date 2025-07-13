@@ -62,6 +62,7 @@ export default function App() {
       ));
     } else {
       setCartItems([...cartItems, { ...product, id, quantity: 1 }]);
+      
     }
   };
 

@@ -4,14 +4,16 @@ import { toast } from 'react-toastify';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaCartPlus } from 'react-icons/fa';
 import { useQuery } from '@tanstack/react-query';
-
+import api from '../utils/api';
+import { baseImageUrl } from '../utils/api'; // Import the base image URL
 export default function OurProducts({ addToCart, loggedIn }) {
   const navigate = useNavigate();
-
+  console.log('Backend Base URL:', import.meta.env.VITE_BACKEND_BASE_URL);
   const fetchProducts = async () => {
-    const res = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/products`);
-    if (!res.ok) throw new Error('Failed to fetch products');
-    return await res.json();
+    // const res = await fetch(`${import.meta.env.VITE_BACKEND_BASE_URL}/products`);
+    const res = await api.get('/products');
+
+    return res.data;
   };
 
   const {
@@ -25,7 +27,7 @@ export default function OurProducts({ addToCart, loggedIn }) {
       toast.error('Failed to load products. Please try again later.');
     },
   });
-
+  console.log('Products:', products);
   const handleAddToCart = (product) => {
     if (!loggedIn) {
       toast.warning('Please log in to add items to your cart');
@@ -84,7 +86,7 @@ export default function OurProducts({ addToCart, loggedIn }) {
                 <div className="flex justify-center mb-4 w-full">
                   <img
                     src={`${
-                      import.meta.env.VITE_BACKEND_BASE_URL
+                      baseImageUrl
                     }/${product.imagePath?.replace(/\\/g, '/')}`}
                     alt={product.name}
                     className="h-28 w-28 object-cover rounded-full border-4 border-green-100 shadow"
