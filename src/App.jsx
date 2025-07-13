@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Routes, Route, Link, Navigate, useNavigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
 import Footer from './components/Footer';
 import FirstPage from './Pages/FirstPage';
 import Login from './Auth/Login';
@@ -9,10 +12,13 @@ import SignUp from './Auth/SignUp';
 import Home from './Pages/Home';
 import CartPage from './Pages/CartPage';
 import OurProducts from './Pages/OurProducts';
-import AdminDashboard from './Pages/AdminDashboard'; // 👈 axios instance
+import AdminDashboard from './Pages/AdminDashboard';
 import AdminRoute from './components/AdminRoute';
 import EsewaSuccess from './Pages/EsewaSuccess';
 import EsewaFailure from './Pages/EsewaFailure';
+
+// Create React Query Client
+const queryClient = new QueryClient();
 
 export default function App() {
   const [cartItems, setCartItems] = useState(() => {
@@ -21,21 +27,20 @@ export default function App() {
   });
 
   const [loggedIn, setLoggedIn] = useState(localStorage.getItem('loggedIn') === 'true');
-  useEffect(()=>{
-    const isLoggedIn = localStorage.getItem('loggedIn') === 'true';
-    setLoggedIn(isLoggedIn);
-  },[loggedIn])
   const [role, setRole] = useState(localStorage.getItem('role') || 'guest');
-  useEffect(()=>{
-    const role = localStorage.getItem('role');
-    setRole(role);
-  },[role])
 
   const navigate = useNavigate();
 
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cartItems));
   }, [cartItems]);
+
+  useEffect(() => {
+    const meta = document.createElement('meta');
+    meta.name = "viewport";
+    meta.content = "width=device-width, initial-scale=1";
+    document.head.appendChild(meta);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('loggedIn');
@@ -47,7 +52,7 @@ export default function App() {
   };
 
   const addToCart = (product) => {
-    const id = product._id || product.id; // fallback if id is present
+    const id = product._id || product.id;
     const exists = cartItems.find((item) => item.id === id);
     if (exists) {
       setCartItems(cartItems.map((item) =>
@@ -60,16 +65,8 @@ export default function App() {
     }
   };
 
-  useEffect(() => {
-    const meta = document.createElement('meta');
-    meta.name = "viewport";
-    meta.content = "width=device-width, initial-scale=1";
-    document.head.appendChild(meta);
-  }, []);
-
-  console.log(loggedIn,'loggedIn');
   return (
-    <>
+    <QueryClientProvider client={queryClient}>
       {/* ✅ Navbar */}
       <nav className="bg-white shadow-md px-6 py-4 flex justify-between items-center">
         <Link to="/" className="flex items-center space-x-2">
@@ -140,21 +137,21 @@ export default function App() {
           }
         />
 
-        {/* 🔐 Admin Protected Route */}
         <Route
           path="/admin-dashboard"
           element={
-            <AdminRoute isLoggedIn={loggedIn} isAdmin={role==='admin'}>
+            <AdminRoute isLoggedIn={loggedIn} isAdmin={role === 'admin'}>
               <AdminDashboard />
             </AdminRoute>
           }
         />
+
         <Route path="/esewa-success" element={<EsewaSuccess />} />
         <Route path="/esewa-failure" element={<EsewaFailure />} />
       </Routes>
 
       <Footer />
       <ToastContainer position="bottom-right" />
-    </>
+    </QueryClientProvider>
   );
 }

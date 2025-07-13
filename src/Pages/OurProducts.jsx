@@ -1,25 +1,30 @@
-import React, { useEffect, useState } from 'react';
-import api from '../utils/api';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaCartPlus } from 'react-icons/fa';
-import {useQuery} from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 
 export default function OurProducts({ addToCart, loggedIn }) {
   const navigate = useNavigate();
 
-  const fetchProducts =async ()=>{
-    const res =await fetch('/products');
-    return res.data;
+  // ✅ React Query fetch function using fetch()
+  const fetchProducts = async () => {
+    const res = await fetch('http://localhost:10000/api/products'); // ✅ full URL to avoid relative path issues
+    if (!res.ok) throw new Error('Failed to fetch products');
+    return await res.json(); // Get JSON response
   };
 
-  const {data: products=[],isLoading,error}= useQuery({
+  const {
+    data: products = [],
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ['products'],
     queryFn: fetchProducts,
-    onError:()=>{
-      toast.error('Failed to fetch products');
-    }
+    onError: () => {
+      toast.error('Failed to load products. Please try again later.');
+    },
   });
 
   const handleAddToCart = (product) => {
@@ -38,64 +43,82 @@ export default function OurProducts({ addToCart, loggedIn }) {
         Our Products
       </h1>
 
-      <AnimatePresence>
-        <motion.div
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10 max-w-7xl mx-auto"
-          initial="hidden"
-          animate="visible"
-          variants={{
-            hidden: {},
-            visible: { transition: { staggerChildren: 0.08 } }
-          }}
-        >
-          {products.map((product, idx) => (
-            <motion.div
-              key={product._id}
-              variants={{
-                hidden: { opacity: 0, y: 40, scale: 0.95 },
-                visible: { opacity: 1, y: 0, scale: 1 }
-              }}
-              transition={{ duration: 0.5, delay: idx * 0.05 }}
-              whileHover={{ scale: 1.04, boxShadow: "0 8px 32px rgba(16,185,129,0.15)" }}
-              className="bg-white/40 backdrop-blur-xl border border-white/30 rounded-3xl shadow-2xl p-7 flex flex-col items-center transition-all duration-300 hover:shadow-green-200"
-              style={{
-                minHeight: 320,
-                boxShadow: "0 4px 24px rgba(59,130,246,0.07)"
-              }}
-            >
-              <div className="flex justify-center mb-4 w-full">
-                <img
-                  src={`http://localhost:5000/${product.imagePath.replace(/\\/g, '/')}`}
-                  alt={product.name}
-                  className="h-28 w-28 object-cover rounded-full border-4 border-green-100 shadow"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = '/resources/Logostore.png';
-                  }}
-                />
-              </div>
+      {isLoading && (
+        <p className="text-center text-lg font-medium text-gray-500">Loading products...</p>
+      )}
 
-              <h3 className="text-2xl font-bold text-green-900 text-center mb-1">{product.name}</h3>
+      {isError && (
+        <p className="text-center text-lg font-medium text-red-500">
+          Something went wrong while fetching products.
+        </p>
+      )}
 
-              <p className="text-center text-base text-gray-600 mb-2">
-                {product.description?.slice(0, 50)}
-                {product.description?.length > 50 ? '...' : ''}
-              </p>
-
-              <div className="text-blue-700 font-semibold mb-4 text-center text-lg">
-                Rs. {product.price} <span className="text-xs text-gray-500">/ {product.unit}</span>
-              </div>
-
-              <button
-                onClick={() => handleAddToCart(product)}
-                className="bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white px-6 py-2 rounded-full text-base font-semibold shadow flex items-center gap-2 transition"
+      {!isLoading && !isError && (
+        <AnimatePresence>
+          <motion.div
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10 max-w-7xl mx-auto"
+            initial="hidden"
+            animate="visible"
+            variants={{
+              hidden: {},
+              visible: { transition: { staggerChildren: 0.08 } },
+            }}
+          >
+            {products.map((product, idx) => (
+              <motion.div
+                key={product._id}
+                variants={{
+                  hidden: { opacity: 0, y: 40, scale: 0.95 },
+                  visible: { opacity: 1, y: 0, scale: 1 },
+                }}
+                transition={{ duration: 0.5, delay: idx * 0.05 }}
+                whileHover={{
+                  scale: 1.04,
+                  boxShadow: '0 8px 32px rgba(16,185,129,0.15)',
+                }}
+                className="bg-white/40 backdrop-blur-xl border border-white/30 rounded-3xl shadow-2xl p-7 flex flex-col items-center transition-all duration-300 hover:shadow-green-200"
+                style={{
+                  minHeight: 320,
+                  boxShadow: '0 4px 24px rgba(59,130,246,0.07)',
+                }}
               >
-                <FaCartPlus className="text-lg" /> Add to Cart
-              </button>
-            </motion.div>
-          ))}
-        </motion.div>
-      </AnimatePresence>
+                <div className="flex justify-center mb-4 w-full">
+                  <img
+                    src={`http://localhost:10000/${product.imagePath.replace(/\\/g, '/')}`}
+                    alt={product.name}
+                    className="h-28 w-28 object-cover rounded-full border-4 border-green-100 shadow"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = '/resources/Logostore.png';
+                    }}
+                  />
+                </div>
+
+                <h3 className="text-2xl font-bold text-green-900 text-center mb-1">
+                  {product.name}
+                </h3>
+
+                <p className="text-center text-base text-gray-600 mb-2">
+                  {product.description?.slice(0, 50)}
+                  {product.description?.length > 50 ? '...' : ''}
+                </p>
+
+                <div className="text-blue-700 font-semibold mb-4 text-center text-lg">
+                  Rs. {product.price}{' '}
+                  <span className="text-xs text-gray-500">/ {product.unit}</span>
+                </div>
+
+                <button
+                  onClick={() => handleAddToCart(product)}
+                  className="bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white px-6 py-2 rounded-full text-base font-semibold shadow flex items-center gap-2 transition"
+                >
+                  <FaCartPlus className="text-lg" /> Add to Cart
+                </button>
+              </motion.div>
+            ))}
+          </motion.div>
+        </AnimatePresence>
+      )}
     </div>
   );
 }
